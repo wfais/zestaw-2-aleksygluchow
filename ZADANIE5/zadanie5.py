@@ -49,7 +49,7 @@ def rysuj_wielomian(wejscie):
     plt.grid(True)
     plt.legend()
 
-    # Zwracamy wartości na brzegach przedziału
+    # Zwracamy wartości na brzegach przedzialu
     return float(y_val[0]), float(y_val[-1])
 
 
