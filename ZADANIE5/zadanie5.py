@@ -41,16 +41,21 @@ def rysuj_wielomian(wejscie):
     # Liczymy y(x) za pomocą eval
     y_val = eval(func_str, {"__builtins__": {}}, allowed)
 
+    # Jeśli wyszedł skalar (np. "5"), zamień na tablicę stałą
+    if np.isscalar(y_val):
+        y_val = np.full_like(x_val, float(y_val))
+
     # Rysujemy wykres (bez show!)
     plt.plot(x_val, y_val, label="eval()")
-    plt.xlabel("x")git config --global user.name
+    plt.xlabel("x")
     plt.ylabel("f(x)")
     plt.title(f"f(x) = {func_str}  (eval)")
     plt.grid(True)
     plt.legend()
 
-    # Zwracamy wartości na brzegach przedzialu
+    # Zwracamy wartości na brzegach przedziału
     return float(y_val[0]), float(y_val[-1])
+
 
 
 # Funkcja rysująca wykres na podstawie sympy i lambdify()

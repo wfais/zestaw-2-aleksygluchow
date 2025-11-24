@@ -9,15 +9,15 @@ LICZBA_WATKOW = sorted({1, 2, 4, os.cpu_count() or 4})
 
 
 def policz_fragment_pi(pocz: int, kon: int, krok: float, wyniki: list[float], indeks: int) -> None:
-    
     lokalna_suma = 0.0
 
     for i in range(pocz, kon):
         x = (i + 0.5) * krok
         lokalna_suma += 4.0 / (1.0 + x * x)
 
-    # mnożymy przez krok – ten fragment to już kawałek całki
-    wyniki[indeks] = lokalna_suma * krok
+    #
+    wyniki[indeks] = lokalna_suma
+
 
 
 def main():
@@ -58,8 +58,9 @@ def main():
         for t in watki:
             t.join()
 
-        przyblizenie_pi = sum(wyniki)
+        przyblizenie_pi = sum(wyniki) * krok
         czas_trwania = time.perf_counter() - start_czas
+
 
         if czas_jednowatkowy is None:
             czas_jednowatkowy = czas_trwania
