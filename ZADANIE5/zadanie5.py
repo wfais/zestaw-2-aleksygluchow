@@ -2,37 +2,97 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sympy import symbols, sympify, lambdify
 
+
+def _parsuj_wejscie(wejscie: str):
+    """
+    Wejście ma postać:
+        "x**3 + 3*x + 1, -10 10"
+    Zwracamy:
+        funkcja_str, x_min, x_max
+    """
+    func_str, rest = wejscie.split(",", 1)
+    func_str = func_str.strip()
+    rest = rest.strip()
+    x_min_str, x_max_str = rest.split()
+    x_min = float(x_min_str)
+    x_max = float(x_max_str)
+    return func_str, x_min, x_max
+
+
 # Funkcja rysująca wykres na podstawie eval()
 def rysuj_wielomian(wejscie):
-    # Generowanie wartości x i y przy użyciu eval()
-    # Rysowanie wykresu ale bez show()
+    # Parsujemy wejście
+    func_str, x_min, x_max = _parsuj_wejscie(wejscie)
 
-    # Zwracanie wartości na granicach przedziału
-    return y_val[0], y_val[-1]
+    # Generujemy punkty x
+    x_val = np.linspace(x_min, x_max, 200)
 
-# Funkcja rysująca wykres na podstawie SymPy i lambdify()
+    # Przygotowujemy środowisko dla eval – dopuszczamy tylko to, co potrzebne
+    allowed = {
+        "x": x_val,
+        "np": np,
+        "sin": np.sin,
+        "cos": np.cos,
+        "tan": np.tan,
+        "exp": np.exp,
+        "log": np.log,
+    }
+
+    # Liczymy y(x) za pomocą eval
+    y_val = eval(func_str, {"__builtins__": {}}, allowed)
+
+    # Rysujemy wykres (bez show!)
+    plt.plot(x_val, y_val, label="eval()")
+    plt.xlabel("x")git config --global user.name
+    plt.ylabel("f(x)")
+    plt.title(f"f(x) = {func_str}  (eval)")
+    plt.grid(True)
+    plt.legend()
+
+    # Zwracamy wartości na brzegach przedziału
+    return float(y_val[0]), float(y_val[-1])
+
+
+# Funkcja rysująca wykres na podstawie sympy i lambdify()
 def rysuj_wielomian_sympy(wejscie):
-    # Definicja symbolu i konwersja do funkcji numerycznej za pomocą SymPy
-    # Generowanie wartości x i y przy użyciu funkcji numerycznej
-    # Rysowanie wykresu ale bez show()
+    # Parsujemy wejście
+    func_str, x_min, x_max = _parsuj_wejscie(wejscie)
 
-    # Zwracanie wartości na granicach przedziału
-    return y_val_sympy[0], y_val_sympy[-1]
+    # Symboliczna zmienna
+    x = symbols("x")
+
+    # Zamiana napisu na wyrażenie sympy
+    expr = sympify(func_str)
+
+    # Funkcja numeryczna, backend numpy
+    f_num = lambdify(x, expr, "numpy")
+
+    # Punkty x i wartości y
+    x_val = np.linspace(x_min, x_max, 200)
+    y_val_sympy = f_num(x_val)
+
+    # Rysujemy wykres (bez show!)
+    plt.plot(x_val, y_val_sympy, "--", label="sympy")
+    plt.xlabel("x")
+    plt.ylabel("f(x)")
+    plt.title(f"f(x) = {func_str}  (sympy)")
+    plt.grid(True)
+    plt.legend()
+
+    # Zwracamy wartości na brzegach przedziału
+    return float(y_val_sympy[0]), float(y_val_sympy[-1])
+
 
 if __name__ == '__main__':
-    # Przykładowe wywołanie pierwszej funkcji
+    # Przykładowe wywołanie pierwszej funkcji (eval)
     wejscie1 = "x**3 + 3*x + 1, -10 10"
-    
-    # Pierwszy wykres z eval
     wynik_eval = rysuj_wielomian(wejscie1)
     print("Wynik (eval):", wynik_eval)
-    
-    # Drugie wejście dla funkcji SymPy - bardziej złożona funkcja 
-    wejscie2 = "x**4 - 5*x**2 + 3*sin(x), -10 10"  
-    
-    # Drugi wykres z SymPy
+
+    # Drugie wejście dla funkcji sympy - bardziej złożona funkcja
+    wejscie2 = "x**4 - 5*x**2 + 3*sin(x), -10 10"
     wynik_sympy = rysuj_wielomian_sympy(wejscie2)
-    print("Wynik (SymPy):", wynik_sympy)
-    
+    print("Wynik (sympy):", wynik_sympy)
+
     # Wyświetlanie obu wykresów
     plt.show()
